@@ -9,7 +9,7 @@ from scipy import stats
 from keras.utils import normalize
 from keras.utils import np_utils
 from keras.models import Sequential
-from keras.layers import Dense, Activation, Dropout, LSTM, Embedding
+from keras.layers import Dense, Activation, Dropout, LSTM, Embedding, add
 from keras.optimizers import Adam
 
 from sklearn.model_selection import train_test_split
@@ -71,19 +71,22 @@ print(model.summary())'''
 
 # create functional model
 inputs=keras.Input(shape=(14,))
+x=Dense(200, activation='relu')(inputs)
+x=Dense(200, activation='relu')(x)
+block_1_output = Dense(100, activation='sigmoid')(x)
 
-dense = Dense(200, activation='relu')
-x=dense(inputs)
-
+x=Dense(100, Activation='relu')(block_1_output)
+x=Dense(100, activation='relu')(x)
 x=Dense(200, activation='relu')(x)
 
-x=Dense(100, activation='relu')(x)
+block_2_output = add([x, block_1_output])
 
-outputs = Dense(2, activation='sigmoid')(x)
+outputs = keras.layers.Dense(2)(block_2_output)
+
 
 model=keras.Model(inputs=inputs, outputs=outputs, name="eeg_model")
 
-keras.utils.plot_model(model, "./data/eeg_model.png")
+keras.utils.plot_model(model, "./data/eeg_model.png", show_shapes=True)
 
 
 # Try RNN network- needs work
